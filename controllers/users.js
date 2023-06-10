@@ -129,12 +129,9 @@ function editProfileUserInfo(req, res, next) {
 
       throw new NotFoundError('Пользователь c указанным id не найден');
     })
+
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(new InvalidDataError('Передача некорректных данных при попытке обновления профиля'));
-      } else {
-        next(err);
-      }
+      next(err);
     });
 }
 
@@ -160,11 +157,7 @@ function changeUserAvatar(req, res, next) {
       throw new NotFoundError('Пользователь c указанным id не найден');
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(new InvalidDataError('Передача некорректных данных при попытке обновления аватара'));
-      } else {
-        next(err);
-      }
+      next(err);
     });
 }
 

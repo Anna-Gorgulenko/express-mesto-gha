@@ -7,13 +7,12 @@ const { urlPattern } = require('../utils/constants');
 
 const cardSchema = new Schema(
   {
+
     name: {
       type: String,
-      required: true,
-      validate: {
-        validator: ({ length }) => length >= 2 && length <= 30,
-        message: 'Имя карточки должно быть длиной от 2 до 30 символов',
-      },
+      required: [true, 'Имя карточки обязательное поле'],
+      minlength: [2, 'Имя карточки должно содержать минимум 2 символа'],
+      maxlength: [30, 'Имя карточки должно содержать максимум 30 символов'],
     },
 
     link: {

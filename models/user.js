@@ -20,8 +20,6 @@ const userSchema = new Schema(
       type: String,
       required: true,
       select: false,
-      minlength: 6,
-      message: 'Пароль должен состоять минимум из 6 символов',
     },
     name: {
       type: String,
@@ -65,3 +63,4 @@ const userSchema = new Schema(
 );
 
 module.exports = mongoose.model('user', userSchema);
+
