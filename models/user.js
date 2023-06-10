@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const { Schema } = mongoose;
-
 const { urlPattern } = require('../utils/constants');
+const AuthenticationError = require('../errors/AuthenticationError');
 
 const userSchema = new Schema(
   {
@@ -16,35 +16,25 @@ const userSchema = new Schema(
         message: 'Введите электронный адрес',
       },
     },
-
     password: {
       type: String,
       required: true,
       select: false,
-      validate: {
-        validator: ({ length }) => length >= 6,
-        message: 'Пароль должен состоять минимум из 6 символов',
-      },
+      minlength: 6,
+      message: 'Пароль должен состоять минимум из 6 символов',
     },
-
     name: {
       type: String,
       default: 'Жак-Ив Кусто',
-      validate: {
-        validator: ({ length }) => length >= 2 && length <= 30,
-        message: 'Имя пользователя должно быть длиной от 2 до 30 символов',
-      },
+      minlength: [2, 'Имя пользователя должно быть длиной от 2 до 30 символов'],
+      maxlength: [30, 'Имя пользователя должно быть длиной от 2 до 30 символов'],
     },
-
     about: {
       type: String,
       default: 'Исследователь',
-      validate: {
-        validator: ({ length }) => length >= 2 && length <= 30,
-        message: 'Информация о пользователе должна быть длиной от 2 до 30 символов',
-      },
+      minlength: [2, 'Информация о пользователе должна быть длиной от 2 до 30 символов'],
+      maxlength: [30, 'Информация о пользователе должна быть длиной от 2 до 30 символов'],
     },
-
     avatar: {
       type: String,
       default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
@@ -54,25 +44,20 @@ const userSchema = new Schema(
       },
     },
   },
-
   {
     versionKey: false,
     statics: {
       findUserByCredentials(email, password) {
-        return this
-          .findOne({ email })
+        return this.findOne({ email })
           .select('+password')
           .then((user) => {
             if (user) {
-              return bcrypt.compare(password, user.password)
-                .then((matched) => {
-                  if (matched) return user;
-
-                  return Promise.reject();
-                });
+              return bcrypt.compare(password, user.password).then((matched) => {
+                if (matched) return user;
+                return Promise.reject(new AuthenticationError('Неправильные почта или пароль'));
+              });
             }
-
-            return Promise.reject();
+            return Promise.reject(new AuthenticationError('Неправильные почта или пароль'));
           });
       },
     },

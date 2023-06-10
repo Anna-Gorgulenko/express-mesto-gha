@@ -55,19 +55,16 @@ function loginUser(req, res, next) {
   User
     .findUserByCredentials(email, password)
     .then(({ _id: userId }) => {
-      if (userId) {
-        const token = jwt.sign(
-          { userId },
-          SECRET_KEY,
-          { expiresIn: '7d' },
-        );
-
-        return res.send({ _id: token });
-      }
-
-      throw new AuthenticationError('Неправильные почта или пароль');
+      const token = jwt.sign(
+        { userId },
+        SECRET_KEY,
+        { expiresIn: '7d' },
+      );
+      return res.send({ token });
     })
-    .catch(next);
+    .catch(() => {
+      next(new AuthenticationError('Неправильные почта или пароль'));
+    });
 }
 
 // Получение всех пользователей из базы данных
@@ -84,18 +81,13 @@ function getUserId(req, res, next) {
 
   User
     .findById(id)
-
     .then((user) => {
       if (user) return res.send({ user });
 
       throw new NotFoundError('Пользователь c указанным id не найден');
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new InvalidDataError('Передача некорректного id'));
-      } else {
-        next(err);
-      }
+      next(err);
     });
 }
 
@@ -111,11 +103,7 @@ function getUserInfo(req, res, next) {
       throw new NotFoundError('Пользователь c указанным id не найден');
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new InvalidDataError('Передача некорректного id'));
-      } else {
-        next(err);
-      }
+      next(err);
     });
 }
 

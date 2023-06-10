@@ -1,3 +1,4 @@
+const { CastError } = require('mongoose').Error;
 const Card = require('../models/card');
 
 const AccessDeniedError = require('../errors/AccessDeniedError');
@@ -85,8 +86,12 @@ function addLikeToCard(req, res, next) {
       throw new NotFoundError('Карточка с данным ID не найдена');
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(new InvalidDataError('Передача некорректных данных при попытке поставить лайк.'));
+      if (err instanceof CastError) {
+        next(
+          new InvalidDataError(
+            'Передача некорректных данных при попытке поставить лайк.',
+          ),
+        );
       } else {
         next(err);
       }
@@ -116,8 +121,12 @@ function deleteLikeFromCard(req, res, next) {
       throw new NotFoundError('Карточка c передаваемым ID не найдена');
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        next(new InvalidDataError('Передача некорректных данных при попытке удаления лайка с карточки.'));
+      if (err instanceof CastError) {
+        next(
+          new InvalidDataError(
+            'Передача некорректных данных при попытке удаления лайка с карточки.',
+          ),
+        );
       } else {
         next(err);
       }
